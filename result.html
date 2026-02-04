@@ -102,12 +102,27 @@
     `;
 
     document.getElementById('ctaBtn').addEventListener('click', () => {
-      track('click_heartpin', { mbti: mbti || 'na', variant });
+    const dest = new URL("https://naver.com");
+    dest.searchParams.set("mbti", mbti || "na");
+    dest.searchParams.set("v", variant);
 
-      setTimeout(() => {
-        location.href = `https://example.com/heartpin?mbti=${encodeURIComponent(mbti || 'na')}&v=${variant}`;
-      }, 200);
+    // UTM
+    dest.searchParams.set("utm_source", "dating_mbti");
+    dest.searchParams.set("utm_medium", "cta");
+    dest.searchParams.set("utm_campaign", "ab_test");
+
+    // GA 이벤트 -> 콜백에서 이동 (가장 깔끔)
+    gtag('event', 'click_heartpin', {
+      mbti: mbti || 'na',
+      variant,
+      destination: dest.toString(),
+      event_callback: () => { location.href = dest.toString(); },
+      event_timeout: 1200
     });
+
+    // 혹시 콜백이 안 오면 강제 이동(보험)
+    setTimeout(() => { location.href = dest.toString(); }, 1300);
+  });
   </script>
 </body>
 </html>
